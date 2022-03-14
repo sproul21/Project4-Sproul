@@ -95,6 +95,7 @@ func MakeUIWindow() (GUIhandler *ebitenui.UI) {
 			Right: 30,
 		}),
 		// ... click handler, etc. ...
+
 	)
 	rootContainer.AddChild(button)
 	rootContainer.AddChild(widget.NewText(textInfo))
