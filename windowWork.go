@@ -125,6 +125,7 @@ func MakeUIWindow() (GUIhandler *ebitenui.UI) {
 	if err != nil {
 		log.Println(err)
 	}
+
 	listWidget := widget.NewList(
 		widget.ListOpts.Entries(dataAsGeneric),
 		widget.ListOpts.EntryLabelFunc(func(e interface{}) string {
@@ -142,7 +143,7 @@ func MakeUIWindow() (GUIhandler *ebitenui.UI) {
 		widget.ListOpts.EntrySelectedHandler(func(args *widget.ListEntrySelectedEventArgs) {
 			//do something when a list item changes
 		}))
-
+	rootContainer.AddChild(listWidget)
 	textWidget = widget.NewText(textInfo)
 	rootContainer.AddChild(textWidget)
 
