@@ -125,9 +125,23 @@ func MakeUIWindow() (GUIhandler *ebitenui.UI) {
 	if err != nil {
 		log.Println(err)
 	}
-	listWidget := widget.List{
-		entries: nil,
-	}
+	listWidget := widget.NewList(
+		widget.ListOpts.Entries(dataAsGeneric),
+		widget.ListOpts.EntryLabelFunc(func(e interface{}) string {
+			return e.(UniversityResponse).Name
+		}),
+		widget.ListOpts.ScrollContainerOpts(widget.ScrollContainerOpts.Image(resources.image)),
+		widget.ListOpts.SliderOpts(
+			widget.SliderOpts.Images(resources.track, resources.handle),
+			widget.SliderOpts.HandleSize(resources.handleSize),
+			widget.SliderOpts.TrackPadding(resources.trackPadding)),
+		widget.ListOpts.EntryColor(resources.entry),
+		widget.ListOpts.EntryFontFace(resources.face),
+		widget.ListOpts.EntryTextPadding(resources.entryPadding),
+		widget.ListOpts.HideHorizontalSlider(),
+		widget.ListOpts.EntrySelectedHandler(func(args *widget.ListEntrySelectedEventArgs) {
+			//do something when a list item changes
+		}))
 
 	textWidget = widget.NewText(textInfo)
 	rootContainer.AddChild(textWidget)
