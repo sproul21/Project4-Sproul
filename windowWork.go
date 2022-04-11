@@ -1,12 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"embed"
 	"fmt"
 	"github.com/blizzy78/ebitenui"
 	"github.com/blizzy78/ebitenui/image"
 	"github.com/blizzy78/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/image/font/basicfont"
 	"image/color"
 	"image/png"
@@ -126,10 +128,18 @@ func MakeUIWindow() (GUIhandler *ebitenui.UI) {
 		log.Println(err)
 	}
 
+	allStudents := loadStudents()
+	dataAsGeneric := make([]interface{}, len(allStudents))
+	for position, student := range allStudents {
+		dataAsGeneric[position] = student
+	}
+
 	listWidget := widget.NewList(
 		widget.ListOpts.Entries(dataAsGeneric),
 		widget.ListOpts.EntryLabelFunc(func(e interface{}) string {
-			return e.(UniversityResponse).Name
+			fullName := "%s %s"
+			fmt.Sprintf(fullName, e.(Student).FirstName, e.(Student).LastName)
+			return e.(Student).LastName
 		}),
 		widget.ListOpts.ScrollContainerOpts(widget.ScrollContainerOpts.Image(resources.image)),
 		widget.ListOpts.SliderOpts(
@@ -183,4 +193,27 @@ func FunctionNameHere(args *widget.ButtonClickedEventArgs) {
 	message := fmt.Sprintf("You have pressed the button %d times", counter)
 	textWidget.Label = message
 
+}
+
+func loadStudents() []Student {
+	database, err := sql.Open("sqlite3", "Demo.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	sliceOfStudents := make([]Student, 8, 20)
+	selectStatement := "SELECT * FROM students"
+	allStudentsInTable, err := database.Query(selectStatement)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer allStudentsInTable.Close()
+	location := 0
+	for allStudentsInTable.Next() {
+		currentStudent := Student{}
+		allStudentsInTable.Scan(&currentStudent.BannerID, &currentStudent.FirstName, &currentStudent.LastName,
+			&currentStudent.Gpa, &currentStudent.Credits)
+		sliceOfStudents[location] = currentStudent
+		location++
+	}
+	return sliceOfStudents
 }
