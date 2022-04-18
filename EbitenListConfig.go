@@ -1,12 +1,19 @@
 package main
 
 import (
+	"embed"
 	"github.com/blizzy78/ebitenui/image"
 	"github.com/blizzy78/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/basicfont"
 	"image/color"
+	"image/png"
+	"log"
 )
+
+//go:embed graphics/*
+var EmbeddedAssets embed.FS
 
 //straight from the ebitenUI demo https://github.com/blizzy78/ebitenui/tree/master/_demo
 type listResources struct {
@@ -82,4 +89,21 @@ func newListResources() (*listResources, error) {
 			Bottom: 2,
 		},
 	}, nil
+}
+
+func loadPNGImageFromEmbedded(name string) *ebiten.Image {
+	pictNames, err := EmbeddedAssets.ReadDir("graphics")
+	if err != nil {
+		log.Fatal("failed to read embedded dir ", pictNames, " ", err)
+	}
+	embeddedFile, err := EmbeddedAssets.Open("graphics/" + name)
+	if err != nil {
+		log.Fatal("failed to load embedded image ", embeddedFile, err)
+	}
+	rawImage, err := png.Decode(embeddedFile)
+	if err != nil {
+		log.Fatal("failed to load embedded image ", name, err)
+	}
+	gameImage := ebiten.NewImageFromImage(rawImage)
+	return gameImage
 }
